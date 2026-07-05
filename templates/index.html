@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise NLP Ticket Triage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+/* ==========================================================================
+   Enterprise NLP Ticket Triage — design tokens
+   Palette: control-room navy + signal amber, built around a "routing lane"
+   metaphor — every ticket travels a track until it lands in its queue.
+   ========================================================================== */
+
+:root {
+  --bg-deep: #0e1a2b;
+  --bg-panel: #142642;
+  --bg-panel-alt: #1a2f4f;
+  --bg-track: #0b1626;
+  --border: #29405f;
+  --border-soft: #1f3654;
+
+  --text-primary: #eaf1fb;
+  --text-muted: #8ea1bf;
+  --text-faint: #5d7092;
+
+  --accent-amber: #e8a33d;
+  --accent-amber-soft: rgba(232, 163, 61, 0.16);
+  --accent-teal: #56c8a0;
+  --accent-teal-soft: rgba(86, 200, 160, 0.16);
+  --accent-red: #e2665b;
+
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-panel: 0 20px 50px -20px rgba(0, 0, 0, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1100px 600px at 85% -10%, rgba(232, 163, 61, 0.08), transparent 60%),
+    var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- shared chrome ---------- */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-amber);
+  box-shadow: 0 0 0 4px var(--accent-amber-soft);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px clamp(24px, 5vw, 72px) 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.topbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.topbar .brand-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--accent-amber), #c97f1f);
+  display: inline-block;
+}
+
+/* ---------- landing page ---------- */
+
+.hero {
+  min-height: calc(100vh - 70px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 40px;
+  padding: 40px clamp(24px, 5vw, 72px) 64px;
+}
+
+.hero-copy h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.2vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 18px 0 20px;
+  max-width: 12ch;
+}
+
+.hero-copy p {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-width: 46ch;
+  margin: 0 0 34px;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  padding: 14px 26px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-amber);
+  color: #1a1305;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0 10px 30px -12px rgba(232, 163, 61, 0.55);
+}
+
+.btn:hover {
+  background: #f2ae4c;
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-arrow {
+  transition: transform 0.15s ease;
+}
+
+.btn:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+.caption-row {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
+.caption-row .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+/* ---------- routing lanes signature ---------- */
+
+.routing-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 28px 26px 22px;
+  box-shadow: var(--shadow-panel);
+}
+
+.routing-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 22px;
+}
+
+.routing-panel-head h2 {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin: 0;
+}
+
+.routing-panel-head span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lane {
+  position: relative;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-track);
+  border: 1px solid var(--border-soft);
+  transition: border-color 0.35s ease, background 0.35s ease;
+}
+
+.lane-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lane-track {
+  position: relative;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-soft);
+  overflow: visible;
+}
+
+.lane-ticket {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--text-faint);
+  transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.lane.is-active {
+  border-color: var(--accent-teal);
+  background: var(--accent-teal-soft);
+}
+
+.lane.is-active .lane-label {
+  color: var(--text-primary);
+}
+
+.lane.is-active .lane-ticket {
+  left: 88%;
+  background: var(--accent-teal);
+  box-shadow: 0 0 0 5px rgba(86, 200, 160, 0.22);
+}
+
+.routing-panel.is-ambient .lane-ticket {
+  animation: drift 5.4s ease-in-out infinite;
+}
+
+.routing-panel.is-ambient .lane:nth-child(1) .lane-ticket { animation-delay: 0s; }
+.routing-panel.is-ambient .lane:nth-child(2) .lane-ticket { animation-delay: 0.9s; }
+.routing-panel.is-ambient .lane:nth-child(3) .lane-ticket { animation-delay: 1.8s; }
+.routing-panel.is-ambient .lane:nth-child(4) .lane-ticket { animation-delay: 2.7s; }
+.routing-panel.is-ambient .lane:nth-child(5) .lane-ticket { animation-delay: 3.6s; }
+
+@keyframes drift {
+  0% { left: 0%; background: var(--text-faint); box-shadow: none; }
+  45% { left: 88%; background: var(--accent-amber); box-shadow: 0 0 0 5px var(--accent-amber-soft); }
+  55% { left: 88%; background: var(--accent-amber); box-shadow: 0 0 0 5px var(--accent-amber-soft); }
+  100% { left: 0%; background: var(--text-faint); box-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane-ticket, .btn, .btn-arrow { transition: none; animation: none !important; }
+}
+
+/* ---------- triage workspace ---------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 28px;
+  padding: 8px clamp(24px, 5vw, 72px) 64px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 30px 30px 28px;
+  box-shadow: var(--shadow-panel);
+}
+
+.panel h1 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  margin: 12px 0 8px;
+}
+
+.panel > p.intro {
+  color: var(--text-muted);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  margin: 0 0 26px;
+  max-width: 52ch;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 9px;
+}
+
+.field textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 150px;
+  background: var(--bg-track);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.field textarea:focus {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 0 3px var(--accent-amber-soft);
+  outline: none;
+}
+
+.field-hint {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.form-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* result panel states */
+
+.result-panel .routing-panel-head {
+  margin-bottom: 18px;
+}
+
+.result-empty {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px 20px;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.result-callout {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  background: var(--accent-teal-soft);
+  border: 1px solid rgba(86, 200, 160, 0.4);
+  margin-bottom: 22px;
+}
+
+.result-callout.is-visible {
+  display: flex;
+}
+
+.result-callout .check {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  color: #06231a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.result-callout .result-text {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.result-callout .result-text strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  margin-top: 2px;
+}
+
+@media (max-width: 880px) {
+  .hero, .workspace {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding-top: 20px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="brand"><span class="brand-mark"></span> IT Ops · Triage</div>
+        <div>AWS ECS · v2.3</div>
+    </div>
+
+    <main class="hero">
+        <div class="hero-copy">
+            <span class="eyebrow">Automated ticket routing</span>
+            <h1>Every ticket finds its lane.</h1>
+            <p>
+                Describe the issue once, in your own words. Our NLP model reads it,
+                classifies it, and sends it straight to the right queue — before a
+                person ever has to triage it by hand.
+            </p>
+            <a href="{{ url_for('home') }}" class="btn">
+                Enter triage dashboard
+                <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <div class="caption-row">
+                <span>Natural language processing</span>
+                <span class="dot"></span>
+                <span>Live on AWS ECS</span>
+            </div>
+        </div>
+
+        <div class="routing-panel is-ambient">
+            <div class="routing-panel-head">
+                <h2>Live routing lanes</h2>
+                <span>5 queues</span>
+            </div>
+            <div class="lanes">
+                <div class="lane">
+                    <span class="lane-label">Hardware</span>
+                    <div class="lane-track"><span class="lane-ticket"></span></div>
+                </div>
+                <div class="lane">
+                    <span class="lane-label">Network</span>
+                    <div class="lane-track"><span class="lane-ticket"></span></div>
+                </div>
+                <div class="lane">
+                    <span class="lane-label">Software</span>
+                    <div class="lane-track"><span class="lane-ticket"></span></div>
+                </div>
+                <div class="lane">
+                    <span class="lane-label">Access &amp; identity</span>
+                    <div class="lane-track"><span class="lane-ticket"></span></div>
+                </div>
+                <div class="lane">
+                    <span class="lane-label">Security</span>
+                    <div class="lane-track"><span class="lane-ticket"></span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
